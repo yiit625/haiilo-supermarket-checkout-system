@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,5 +45,27 @@ class BulkOfferServiceTest {
         assertThat(savedOffer.getRequiredQuantity()).isEqualTo(3);
         assertThat(savedOffer.getOfferPrice()).isEqualByComparingTo("0.75");
         verify(bulkOfferRepository, times(1)).save(any(BulkOffer.class));
+    }
+
+    @Test
+    void shouldGetOfferByProductId() {
+        // GIVEN
+        Long productId = 1L;
+        Product apple = Product.builder().id(productId).name("Apple").unitPrice(new BigDecimal("0.30")).build();
+        BulkOffer expectedOffer = BulkOffer.builder()
+                .product(apple)
+                .requiredQuantity(3)
+                .offerPrice(new BigDecimal("0.75"))
+                .build();
+
+        when(bulkOfferRepository.findByProductId(productId)).thenReturn(Optional.of(expectedOffer));
+
+        // WHEN
+        Optional<BulkOffer> actualOffer = bulkOfferService.getOfferByProductId(productId);
+
+        // THEN
+        assertThat(actualOffer).isPresent();
+        assertThat(actualOffer.get().getOfferPrice()).isEqualByComparingTo("0.75");
+        verify(bulkOfferRepository, times(1)).findByProductId(productId);
     }
 }
