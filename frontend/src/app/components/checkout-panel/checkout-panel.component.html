@@ -1,1 +1,36 @@
-<p>checkout-panel works!</p>
+<div class="checkout-container">
+  <h2>Your Cart</h2>
+
+  <mat-list>
+    <mat-list-item *ngFor="let item of checkoutService.getCartItems()">
+      <span matListItemTitle>{{ item.product.name }}</span>
+      <span matListItemLine>
+        {{ item.quantity }} x {{ item.product.unitPrice | currency:'EUR' }}
+      </span>
+    </mat-list-item>
+
+    <div *ngIf="checkoutService.getCartItems().length === 0" class="empty-msg">
+      Your cart is empty.
+    </div>
+  </mat-list>
+
+  <mat-divider></mat-divider>
+
+  <div class="actions" *ngIf="checkoutService.getCartItems().length > 0">
+    <div *ngIf="totalPrice !== null" class="total-result">
+      <h3>Total to Pay: {{ totalPrice | currency:'EUR' }}</h3>
+      <p class="offer-note">* Offers applied by backend</p>
+    </div>
+
+    <div class="button-group">
+      <button mat-flat-button color="primary" (click)="onCheckout()">
+        Checkout
+      </button>
+      <button mat-stroked-button color="warn" (click)="onClear()">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+</div>
