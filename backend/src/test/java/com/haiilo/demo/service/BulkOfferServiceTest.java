@@ -82,4 +82,34 @@ class BulkOfferServiceTest {
         assertThat(offers).isEmpty();
         verify(bulkOfferRepository, times(1)).findAll();
     }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingDuplicateOffer() {
+        // GIVEN
+        Long productId = 1L;
+        Product apple = Product.builder().id(productId).name("Apple").unitPrice(new BigDecimal("0.30")).build();
+        BulkOffer existingOffer = BulkOffer.builder()
+                .product(apple)
+                .requiredQuantity(3)
+                .offerPrice(new BigDecimal("0.75"))
+                .build();
+
+        BulkOffer newOffer = BulkOffer.builder()
+                .product(apple)
+                .requiredQuantity(5)
+                .offerPrice(new BigDecimal("1.20"))
+                .build();
+
+        when(bulkOfferRepository.findByProductId(productId)).thenReturn(Optional.of(existingOffer));
+
+        // WHEN / THEN
+        try {
+            bulkOfferService.createOffer(newOffer);
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage()).isEqualTo("A bulk offer already exists for this product: Apple");
+        }
+
+        verify(bulkOfferRepository, times(1)).findByProductId(productId);
+        verify(bulkOfferRepository, never()).save(any(BulkOffer.class));
+    }
 }
