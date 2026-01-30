@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,5 +42,28 @@ class ProductServiceTest {
         assertThat(savedProduct.getName()).isEqualTo("Apple");
         assertThat(savedProduct.getUnitPrice()).isEqualByComparingTo("0.30");
         verify(productRepository, times(1)).save(any(Product.class));
+    }
+
+    @Test
+    void shouldFindAllProductsSuccessfully() {
+        // GIVEN
+        Product product1 = Product.builder()
+                .name("Apple")
+                .unitPrice(new BigDecimal("0.30"))
+                .build();
+
+        Product product2 = Product.builder()
+                .name("Banana")
+                .unitPrice(new BigDecimal("0.20"))
+                .build();
+
+        when(productRepository.findAll()).thenReturn(List.of(product1, product2));
+
+        // WHEN
+        List<Product> products = productService.findAll();
+
+        // THEN
+        assertThat(products).hasSize(2);
+        verify(productRepository, times(1)).findAll();
     }
 }
