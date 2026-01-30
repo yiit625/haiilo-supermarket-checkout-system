@@ -28,4 +28,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(
                 LocalDateTime.now(), ex.getMessage(), List.of("Resource not found")));
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(
+                LocalDateTime.now(),
+                "Conflict Error",
+                List.of(ex.getMessage())
+        ));
+    }
 }

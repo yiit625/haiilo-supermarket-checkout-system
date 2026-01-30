@@ -22,7 +22,7 @@ public class BulkOffer extends BaseEntity {
     private Long id;
 
     @OneToOne // suppose each product can have only one bulk offer
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false, unique = true)
     private Product product;
 
     @Min(value = 1, message = "Required quantity must be at least 1")

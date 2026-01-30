@@ -17,6 +17,7 @@ public class BulkOfferServiceImpl implements BulkOfferService {
 
     @Override
     public BulkOffer createOffer(BulkOffer offer) {
+        validateOfferUniqueness(offer.getProduct().getId(), offer.getProduct().getName());
         return bulkOfferRepository.save(offer);
     }
 
@@ -28,5 +29,12 @@ public class BulkOfferServiceImpl implements BulkOfferService {
     @Override
     public List<BulkOffer> findAll() {
         return bulkOfferRepository.findAll();
+    }
+
+    private void validateOfferUniqueness(Long productId, String productName) {
+        bulkOfferRepository.findByProductId(productId)
+                .ifPresent(existingOffer -> {
+                    throw new IllegalStateException("A bulk offer already exists for this product: " + productName);
+                });
     }
 }
