@@ -66,4 +66,25 @@ class ProductServiceTest {
         assertThat(products).hasSize(2);
         verify(productRepository, times(1)).findAll();
     }
+
+    @Test
+    void shouldFindProductByIdSuccessfully() {
+        // GIVEN
+        Long productId = 1L;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Apple")
+                .unitPrice(new BigDecimal("0.30"))
+                .build();
+
+        when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(product));
+
+        // WHEN
+        Product foundProduct = productService.findById(productId);
+
+        // THEN
+        assertThat(foundProduct.getId()).isEqualTo(productId);
+        assertThat(foundProduct.getName()).isEqualTo("Apple");
+        verify(productRepository, times(1)).findById(productId);
+    }
 }
