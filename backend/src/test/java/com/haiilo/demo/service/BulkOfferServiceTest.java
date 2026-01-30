@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,5 +68,18 @@ class BulkOfferServiceTest {
         assertThat(actualOffer).isPresent();
         assertThat(actualOffer.get().getOfferPrice()).isEqualByComparingTo("0.75");
         verify(bulkOfferRepository, times(1)).findByProductId(productId);
+    }
+
+    @Test
+    void shouldGetAllOffers() {
+        // GIVEN
+        when(bulkOfferRepository.findAll()).thenReturn(java.util.List.of());
+
+        // WHEN
+        List<BulkOffer> offers = bulkOfferService.findAll();
+
+        // THEN
+        assertThat(offers).isEmpty();
+        verify(bulkOfferRepository, times(1)).findAll();
     }
 }
