@@ -24,7 +24,7 @@ export class ProductListComponent implements OnInit {
   ngOnInit(): void {
     this.productService.getProducts().subscribe({
       next: (data) => this.products = data,
-      error: (err) => console.error('Ürünler yüklenirken hata oluştu:', err)
+      error: (err) => console.error('Error:', err)
     });
   }
 
