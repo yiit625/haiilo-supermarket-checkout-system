@@ -9,4 +9,6 @@ public interface ProductService {
     Product createProduct(Product product);
 
     List<Product> findAll();
+
+    Product findById(Long id);
 }

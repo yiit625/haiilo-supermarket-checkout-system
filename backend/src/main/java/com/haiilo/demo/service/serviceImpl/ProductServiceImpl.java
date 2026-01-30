@@ -3,6 +3,7 @@ package com.haiilo.demo.service.serviceImpl;
 import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.repository.ProductRepository;
 import com.haiilo.demo.service.ProductService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,5 +20,11 @@ public class ProductServiceImpl implements ProductService {
 
     public List<Product> findAll() {
         return productRepository.findAll();
+    }
+
+    @Override
+    public Product findById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
     }
 }
