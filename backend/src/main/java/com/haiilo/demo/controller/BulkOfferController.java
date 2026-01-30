@@ -10,10 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/offers")
@@ -35,5 +32,11 @@ public class BulkOfferController {
                 .build();
 
         return new ResponseEntity<>(bulkOfferService.createOffer(offer), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Get all bulk offers", description = "Retrieves a list of all bulk purchase offers")
+    @GetMapping
+    public ResponseEntity<Iterable<BulkOffer>> getAllOffers() {
+        return new ResponseEntity<>(bulkOfferService.findAll(), HttpStatus.OK);
     }
 }
