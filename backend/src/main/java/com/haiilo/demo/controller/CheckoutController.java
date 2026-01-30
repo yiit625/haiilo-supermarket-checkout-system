@@ -4,6 +4,7 @@ import com.haiilo.demo.dto.CheckoutRequest;
 import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.service.CheckoutService;
 import com.haiilo.demo.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class CheckoutController {
     private final CheckoutService checkoutService;
     private final ProductService productService;
 
+    @Operation(summary = "Calculate total price", description = "Calculates the total price for a list of product IDs, applying any relevant discounts")
     @PostMapping
     public ResponseEntity<BigDecimal> calculateTotal(@Valid @RequestBody CheckoutRequest request) {
         List<Product> products = request.productIds().stream()

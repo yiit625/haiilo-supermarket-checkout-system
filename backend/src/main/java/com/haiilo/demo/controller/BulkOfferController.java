@@ -5,6 +5,7 @@ import com.haiilo.demo.entity.BulkOffer;
 import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.service.BulkOfferService;
 import com.haiilo.demo.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class BulkOfferController {
     private final BulkOfferService bulkOfferService;
     private final ProductService productService;
 
+    @Operation(summary = "Create a new bulk offer", description = "Creates a new bulk purchase offer for a specific product")
     @PostMapping
     public ResponseEntity<BulkOffer> createOffer(@Valid @RequestBody BulkOfferRequest request) {
         Product product = productService.findById(request.productId());

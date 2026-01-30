@@ -4,6 +4,7 @@ import com.haiilo.demo.dto.ProductRequest;
 import com.haiilo.demo.dto.ProductResponse;
 import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
 
+    @Operation(summary = "Create a new product", description = "Adds a new product to the supermarket inventory")
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
         Product product = Product.builder()
@@ -33,6 +35,7 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Get all products", description = "Retrieves a list of all products in the supermarket inventory")
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
         List<ProductResponse> products = productService.findAll().stream()
