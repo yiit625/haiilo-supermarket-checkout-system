@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface BulkOfferService {
     BulkOffer createOffer(BulkOffer offer);
     Optional<BulkOffer> getOfferByProductId(Long productId);
-
     List<BulkOffer> findAll();
+    void deleteById(Long id);
 }

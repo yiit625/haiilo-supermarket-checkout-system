@@ -14,10 +14,12 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
+    @Override
     public Product createProduct(Product product) {
         return productRepository.save(product);
     }
 
+    @Override
     public List<Product> findAll() {
         return productRepository.findAll();
     }
@@ -26,5 +28,13 @@ public class ProductServiceImpl implements ProductService {
     public Product findById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new EntityNotFoundException("Product not found with id: " + id);
+        }
+        productRepository.deleteById(id);
     }
 }

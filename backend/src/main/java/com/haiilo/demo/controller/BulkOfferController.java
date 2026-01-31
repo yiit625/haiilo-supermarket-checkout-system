@@ -39,4 +39,11 @@ public class BulkOfferController {
     public ResponseEntity<Iterable<BulkOffer>> getAllOffers() {
         return new ResponseEntity<>(bulkOfferService.findAll(), HttpStatus.OK);
     }
+
+    @Operation(summary = "Delete bulk offer", description = "Removes a specific bulk offer by ID")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
+        bulkOfferService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

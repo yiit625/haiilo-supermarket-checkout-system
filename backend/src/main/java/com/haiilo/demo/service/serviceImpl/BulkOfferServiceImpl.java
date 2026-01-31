@@ -3,6 +3,7 @@ package com.haiilo.demo.service.serviceImpl;
 import com.haiilo.demo.entity.BulkOffer;
 import com.haiilo.demo.repository.BulkOfferRepository;
 import com.haiilo.demo.service.BulkOfferService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,14 @@ public class BulkOfferServiceImpl implements BulkOfferService {
     @Override
     public List<BulkOffer> findAll() {
         return bulkOfferRepository.findAll();
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!bulkOfferRepository.existsById(id)) {
+            throw new EntityNotFoundException("Product not found with id: " + id);
+        }
+        bulkOfferRepository.deleteById(id);
     }
 
     private void validateOfferUniqueness(Long productId, String productName) {
