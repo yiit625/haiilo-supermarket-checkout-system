@@ -1,5 +1,6 @@
 package com.haiilo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -29,5 +30,6 @@ public class Product extends BaseEntity {
     private BigDecimal unitPrice;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("product")
     private BulkOffer bulkOffer;
 }

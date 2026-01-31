@@ -1,5 +1,6 @@
 package com.haiilo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -23,6 +24,7 @@ public class BulkOffer extends BaseEntity {
 
     @OneToOne // suppose each product can have only one bulk offer
     @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JsonIgnoreProperties("bulkOffer")
     private Product product;
 
     @Min(value = 1, message = "Required quantity must be at least 1")
