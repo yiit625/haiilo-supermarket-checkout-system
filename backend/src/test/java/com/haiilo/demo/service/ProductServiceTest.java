@@ -87,4 +87,16 @@ class ProductServiceTest {
         assertThat(foundProduct.getName()).isEqualTo("Apple");
         verify(productRepository, times(1)).findById(productId);
     }
+
+    @Test
+    void shouldDeleteProductByIdSuccessfully() {
+        // GIVEN
+        Long productId = 1L;
+
+        // WHEN
+        productService.deleteById(productId);
+
+        // THEN
+        verify(productRepository, times(1)).deleteById(productId);
+    }
 }

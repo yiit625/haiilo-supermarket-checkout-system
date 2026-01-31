@@ -63,4 +63,15 @@ public class BulkOfferControllerTest {
                 .andExpect(jsonPath("$.requiredQuantity").value(5))
                 .andExpect(jsonPath("$.offerPrice").value(1.20));
     }
+
+    @Test
+    void shouldDeleteBulkOfferSuccessfully() throws Exception {
+        // GIVEN
+        Long offerId = 1L;
+
+        // WHEN & THEN
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/offers/{id}", offerId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 }

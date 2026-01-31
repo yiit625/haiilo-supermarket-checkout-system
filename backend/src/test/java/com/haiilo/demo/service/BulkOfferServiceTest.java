@@ -112,4 +112,16 @@ class BulkOfferServiceTest {
         verify(bulkOfferRepository, times(1)).findByProductId(productId);
         verify(bulkOfferRepository, never()).save(any(BulkOffer.class));
     }
+
+    @Test
+    void shouldDeleteOfferById() {
+        // GIVEN
+        Long offerId = 1L;
+
+        // WHEN
+        bulkOfferService.deleteById(offerId);
+
+        // THEN
+        verify(bulkOfferRepository, times(1)).deleteById(offerId);
+    }
 }

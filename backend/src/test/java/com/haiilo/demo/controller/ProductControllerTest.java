@@ -85,4 +85,15 @@ class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldDeleteProductSuccessfully() throws Exception {
+        // GIVEN
+        Long productId = 1L;
+
+        // WHEN & THEN
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/products/{id}", productId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 }
