@@ -115,13 +115,14 @@ class BulkOfferServiceTest {
 
     @Test
     void shouldDeleteOfferById() {
-        // GIVEN
-        Long offerId = 1L;
+        Long productId = 1L;
 
-        // WHEN
-        bulkOfferService.deleteById(offerId);
 
-        // THEN
-        verify(bulkOfferRepository, times(1)).deleteById(offerId);
+        when(bulkOfferRepository.existsById(productId)).thenReturn(true);
+
+        bulkOfferService.deleteById(productId);
+
+        verify(bulkOfferRepository, times(1)).existsById(productId);
+        verify(bulkOfferRepository, times(1)).deleteById(productId);
     }
 }

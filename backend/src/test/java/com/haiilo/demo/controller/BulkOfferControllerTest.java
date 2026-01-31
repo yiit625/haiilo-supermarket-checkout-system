@@ -1,5 +1,6 @@
 package com.haiilo.demo.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haiilo.demo.dto.BulkOfferRequest;
 import com.haiilo.demo.entity.BulkOffer;
 import com.haiilo.demo.entity.Product;
@@ -7,11 +8,10 @@ import com.haiilo.demo.service.BulkOfferService;
 import com.haiilo.demo.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 

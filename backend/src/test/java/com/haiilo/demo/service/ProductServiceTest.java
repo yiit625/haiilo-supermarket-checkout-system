@@ -93,10 +93,12 @@ class ProductServiceTest {
         // GIVEN
         Long productId = 1L;
 
-        // WHEN
+
+        when(productRepository.existsById(productId)).thenReturn(true);
+
         productService.deleteById(productId);
 
-        // THEN
+        verify(productRepository, times(1)).existsById(productId);
         verify(productRepository, times(1)).deleteById(productId);
     }
 }
