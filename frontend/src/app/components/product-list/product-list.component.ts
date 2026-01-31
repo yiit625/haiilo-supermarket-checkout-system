@@ -5,11 +5,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { ProductService } from '../../services/product.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { Product } from '../../models/product.model';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {OfferDialogComponent} from '../offer-dialog/offer-dialog.component';
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDialogModule],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
@@ -18,7 +21,8 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private checkoutService: CheckoutService
+    private checkoutService: CheckoutService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -30,5 +34,17 @@ export class ProductListComponent implements OnInit {
 
   addToCart(product: Product): void {
     this.checkoutService.addToCart(product);
+  }
+
+  openOfferDialog(): void {
+    const dialogRef = this.dialog.open(OfferDialogComponent, {
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Give a successfully message in here!');
+      }
+    });
   }
 }

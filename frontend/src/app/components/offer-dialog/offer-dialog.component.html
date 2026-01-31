@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>Create offer</h2>
+<mat-dialog-content>
+  <form [formGroup]="offerForm" style="display: flex; flex-direction: column; gap: 15px; padding-top: 10px;">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Select Product</mat-label>
+      <mat-select formControlName="productId">
+        <mat-option *ngFor="let p of products" [value]="p.id">
+          {{ p.name }} ({{ p.unitPrice | currency:'EUR' }})
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Unit</mat-label>
+      <input matInput type="number" formControlName="requiredQuantity">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Total price</mat-label>
+      <input matInput type="number" formControlName="offerPrice">
+      <span matTextPrefix>€&nbsp;</span>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="offerForm.invalid">Save</button>
+</mat-dialog-actions>
+
+<mat-divider style="margin: 20px 0;"></mat-divider>
+
+<div class="offers-section">
+  <h3>Active Offers</h3>
+
+  <mat-list role="list">
+    <mat-list-item *ngFor="let off of existingOffers" role="listitem">
+      <mat-icon matListItemIcon color="accent">local_offer</mat-icon>
+      <div matListItemTitle><strong>{{ off.product.name }}</strong></div>
+      <div matListItemLine>
+        If you buy {{ off.requiredQuantity }} unit, Total price will be: {{ off.offerPrice | currency:'EUR' }}
+      </div>
+    </mat-list-item>
+  </mat-list>
+
+  <div *ngIf="existingOffers.length === 0" style="text-align: center; color: #999; padding: 10px;">
+    There is no active offer.
+  </div>
+</div>
