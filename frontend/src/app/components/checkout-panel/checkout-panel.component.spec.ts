@@ -15,7 +15,7 @@ describe('CheckoutPanelComponent', () => {
       getCartItems: jasmine.createSpy('getCartItems').and.returnValue([
         { product: { id: 1, name: 'Apple', unitPrice: 0.5 }, quantity: 3 }
       ]),
-      processCheckout: jasmine.createSpy('processCheckout').and.returnValue(of({ totalPrice: 1.0 })),
+      processCheckout: jasmine.createSpy('processCheckout').and.returnValue(of(1.0)),
       clearCart: jasmine.createSpy('clearCart')
     };
 
