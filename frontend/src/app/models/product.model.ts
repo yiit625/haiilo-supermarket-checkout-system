@@ -3,3 +3,8 @@ export interface Product {
   name: string;
   unitPrice: number;
 }
+
+export interface ProductRequest {
+  name: string;
+  unitPrice: number;
+}

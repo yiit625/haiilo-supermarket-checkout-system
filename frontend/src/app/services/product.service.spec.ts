@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ProductService } from './product.service';
+import { Product, ProductRequest } from '../models/product.model';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -38,5 +39,19 @@ describe('ProductService', () => {
     expect(req.request.method).toBe('GET');
 
     req.flush(mockProducts);
+  });
+
+  it('should create a product via POST', () => {
+    const newProductReq: ProductRequest = { name: 'Apple', unitPrice: 0.5 };
+    const savedProduct: Product = { id: 1, name: 'Apple', unitPrice: 0.5 };
+
+    service.createProduct(newProductReq).subscribe(product => {
+      expect(product).toEqual(savedProduct);
+    });
+
+    const req = httpMock.expectOne('http://localhost:8080/api/products');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(newProductReq);
+    req.flush(savedProduct);
   });
 });
