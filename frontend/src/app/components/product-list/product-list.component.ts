@@ -8,6 +8,7 @@ import { Product } from '../../models/product.model';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {OfferDialogComponent} from '../offer-dialog/offer-dialog.component';
 import {MatIconModule} from '@angular/material/icon';
+import {ProductDialogComponent} from '../product-dialog/product-dialog.component';
 
 @Component({
   selector: 'app-product-list',
@@ -38,6 +39,18 @@ export class ProductListComponent implements OnInit {
 
   openOfferDialog(): void {
     const dialogRef = this.dialog.open(OfferDialogComponent, {
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Give a successfully message in here!');
+      }
+    });
+  }
+
+  openProductDialog(): void {
+    const dialogRef = this.dialog.open(ProductDialogComponent, {
       width: '400px'
     });
 

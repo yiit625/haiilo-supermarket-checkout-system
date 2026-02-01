@@ -1,8 +1,14 @@
 <div class="header-actions">
   <h2>Product Catalog</h2>
-  <button mat-stroked-button color="accent" (click)="openOfferDialog()">
-    <mat-icon>add_circle_outline</mat-icon> Manage Offers
-  </button>
+
+  <div class="button-group">
+    <button mat-stroked-button color="accent" (click)="openOfferDialog()">
+      <mat-icon>local_offer</mat-icon> Manage Offers
+    </button>
+    <button mat-stroked-button color="accent" (click)="openProductDialog()">
+      <mat-icon>inventory</mat-icon> Manage Products
+    </button>
+  </div>
 </div>
 
 <div class="product-grid">
