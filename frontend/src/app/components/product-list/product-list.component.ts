@@ -27,6 +27,10 @@ export class ProductListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.listProducts();
+  }
+
+  listProducts(): void {
     this.productService.getProducts().subscribe({
       next: (data) => this.products = data,
       error: (err) => console.error('Error:', err)
@@ -56,7 +60,7 @@ export class ProductListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Give a successfully message in here!');
+        this.listProducts();
       }
     });
   }
