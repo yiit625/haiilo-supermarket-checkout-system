@@ -267,6 +267,13 @@ haiilo-supermarket-checkout-system/
 - API endpoints (success and error cases)
 - Frontend components and services
 
+### 🔍 Performance & Optimization
+- Indexing Strategy: The system uses B-Tree Indexing on Product IDs and names. This ensures that searching and paging operations remain $O(\log n)$ even as the product catalog grows.
+- Payload Protection: To prevent Denial of Service (DoS) attacks and excessive memory consumption, the CheckoutRequest is strictly limited to 500 items per request using Jakarta Validation (@Size(max = 500)).
+
+### 🏗️ Future-Proof Architecture
+- Scalable Offer Schema: Although currently limited to one active bulk offer per product for business simplicity, the BulkOffer is decoupled in the database. Why? This allows us to easily transition to a One-to-Many relationship in the future (e.g., "Buy 3 for €1" OR "Buy 10 for €3") with minimal schema changes.
+
 ## 👤 Author
 
 Developed as a take-home assignment demonstrating full-stack development capabilities. YIGIT SAHIN
