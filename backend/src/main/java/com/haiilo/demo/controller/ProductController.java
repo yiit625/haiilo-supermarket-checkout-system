@@ -7,11 +7,10 @@ import com.haiilo.demo.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -35,13 +34,21 @@ public class ProductController {
         );
     }
 
-    @Operation(summary = "Get all products", description = "Retrieves a list of all products in the supermarket inventory")
+    @Operation(summary = "Get products with paging and optional search", description = "Retrieves a paged list of products, optionally filtered by name.")
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productService.findAll().stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getUnitPrice()))
-                .toList();
-        return ResponseEntity.ok(products);
+    public ResponseEntity<Page<ProductResponse>> getProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search) {
+        Page<Product> productsPage;
+        if (search != null && !search.trim().isEmpty()) {
+            productsPage = productService.searchProductsByName(search, page, size);
+        } else {
+            productsPage = productService.findAllByPaging(page, size);
+        }
+
+        Page<ProductResponse> productResponses = productsPage.map(p -> new ProductResponse(p.getId(), p.getName(), p.getUnitPrice()));
+        return ResponseEntity.ok(productResponses);
     }
 
     @Operation(summary = "Delete product", description = "Removes a specific product by ID")
