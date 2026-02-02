@@ -1,6 +1,6 @@
 # Supermarket Checkout System
 
-A full-stack web application for managing a supermarket checkout system with support for bulk purchase offers and discount calculations. This project demonstrates a modern microservices-ready architecture with a Spring Boot backend and Angular frontend.
+A full-stack web application for managing a supermarket checkout system with support for bulk purchase offers and discount calculations.
 
 ## 🎯 Features
 
