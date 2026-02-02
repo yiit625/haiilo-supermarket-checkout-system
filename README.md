@@ -268,7 +268,7 @@ haiilo-supermarket-checkout-system/
 - Frontend components and services
 
 ### 🔍 Performance & Optimization
-- Indexing Strategy: The system uses B-Tree Indexing on Product IDs and names. This ensures that searching and paging operations remain $O(\log n)$ even as the product catalog grows.
+- Indexing Strategy: The system is optimized using B-Tree Indexing on Primary Keys (ID), ensuring $O(\log n)$ performance for direct lookups.
 - Payload Protection: To prevent Denial of Service (DoS) attacks and excessive memory consumption, the CheckoutRequest is strictly limited to 500 items per request using Jakarta Validation (@Size(max = 500)).
 
 ### 🏗️ Future-Proof Architecture
