@@ -39,7 +39,6 @@ import {Observable} from 'rxjs';
 })
 export class OfferDialogComponent implements OnInit {
   offerForm: FormGroup;
-  products: Product[] = [];
   filteredProducts: Product[] = [];
   productSearchControl = new FormControl();
 
@@ -55,7 +54,8 @@ export class OfferDialogComponent implements OnInit {
     this.offerForm = this.fb.group({
       productId: [null, Validators.required],
       requiredQuantity: [3, [Validators.required, Validators.min(2)]],
-      offerPrice: [null, [Validators.required, Validators.min(0.01)]]
+      offerPrice: [null, [Validators.required, Validators.min(0.01)]],
+      expiryDate: [null]
     });
   }
 
