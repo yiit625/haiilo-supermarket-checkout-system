@@ -29,6 +29,7 @@ public class BulkOfferController {
                 .product(product)
                 .requiredQuantity(request.requiredQuantity())
                 .offerPrice(request.offerPrice())
+                .expiryDate(request.expiryDate())
                 .build();
 
         return new ResponseEntity<>(bulkOfferService.createOffer(offer), HttpStatus.CREATED);

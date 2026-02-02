@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,14 +46,14 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     /**
-     * Calculates the total price for a given product and quantity, applying bulk discounts if available.
+     * Calculates the total price for a single product item, considering bulk offers if applicable.
      *
      * @param product  The product to calculate the total for.
      * @param quantity The quantity of the product.
      * @return Total price for the given product and quantity.
      */
     private BigDecimal calculateItemTotal(Product product, int quantity) {
-        if (product.getBulkOffer() != null) {
+        if (product.getBulkOffer() != null && product.getBulkOffer().getExpiryDate().isAfter(LocalDateTime.now())) {
             return applyBulkDiscount(product, quantity, product.getBulkOffer());
         }
         return calculateRegularPrice(product, quantity);
