@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { ProductService } from '../../services/product.service';
 import { OfferService } from '../../services/offer.service';
@@ -12,9 +11,12 @@ import { Product } from '../../models/product.model';
 import { BulkOffer } from '../../models/bulk-offer.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { NotificationService } from '../../services/notification.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-offer-dialog',
@@ -25,12 +27,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatListModule,
     MatDividerModule,
-    MatIcon,
-    MatSnackBarModule
+    MatIconModule,
+    MatSnackBarModule,
+    MatAutocompleteModule
   ],
   templateUrl: './offer-dialog.component.html',
   styleUrls: ['./offer-dialog.component.scss']
@@ -38,13 +40,16 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 export class OfferDialogComponent implements OnInit {
   offerForm: FormGroup;
   products: Product[] = [];
+  filteredProducts: Product[] = [];
+  productSearchControl = new FormControl();
+
   existingOffers: BulkOffer[] = [];
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
     private offerService: OfferService,
-    private dialogRef: MatDialogRef<OfferDialogComponent>,
+    public dialogRef: MatDialogRef<OfferDialogComponent>,
     private notificationService: NotificationService
   ) {
     this.offerForm = this.fb.group({
@@ -55,9 +60,28 @@ export class OfferDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productService.getProducts().subscribe(data => this.products = data);
     this.loadOffers();
+
+    this.productSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        if (typeof value === 'string' && value.length > 0) {
+          return this.productService.getProducts(0, 10, value);
+        } else {
+          return new Observable<any>(observer => observer.next({ content: [] }));
+        }
+      })
+    ).subscribe(response => {
+      this.filteredProducts = response.content;
+    });
   }
+
+  onProductSelected(event: MatAutocompleteSelectedEvent): void {
+    const selectedProduct = event.option.value;
+    this.offerForm.get('productId')?.setValue(selectedProduct);
+  }
+
 
   loadOffers(): void {
     this.offerService.getOffers().subscribe(data => this.existingOffers = data);

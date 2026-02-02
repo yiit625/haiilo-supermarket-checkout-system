@@ -9,16 +9,21 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {OfferDialogComponent} from '../offer-dialog/offer-dialog.component';
 import {MatIconModule} from '@angular/material/icon';
 import {ProductDialogComponent} from '../product-dialog/product-dialog.component';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDialogModule, MatPaginatorModule],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
+
+  totalElements = 0;
+  pageSize = 10;
+  currentPage = 0;
 
   constructor(
     private productService: ProductService,
@@ -31,10 +36,19 @@ export class ProductListComponent implements OnInit {
   }
 
   listProducts(): void {
-    this.productService.getProducts().subscribe({
-      next: (data) => this.products = data,
+    this.productService.getProducts(this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        this.products = response.content;
+        this.totalElements = response.totalElements;
+      },
       error: (err) => console.error('Error:', err)
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.listProducts();
   }
 
   addToCart(product: Product): void {
