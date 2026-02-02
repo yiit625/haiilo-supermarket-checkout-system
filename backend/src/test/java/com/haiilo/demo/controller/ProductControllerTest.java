@@ -7,6 +7,8 @@ import com.haiilo.demo.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -57,21 +60,27 @@ class ProductControllerTest {
     }
 
     @Test
-    void shouldReturnAllProductsSuccessfully() throws Exception {
+    void shouldReturnPagedProductsSuccessfully() throws Exception {
         // GIVEN
         Product p1 = Product.builder().id(1L).name("Apple").unitPrice(new BigDecimal("0.30")).build();
         Product p2 = Product.builder().id(2L).name("Banana").unitPrice(new BigDecimal("0.50")).build();
 
-        when(productService.findAll()).thenReturn(List.of(p1, p2));
+        Page<Product> productPage = new PageImpl<>(List.of(p1, p2));
+
+        when(productService.findAllByPaging(anyInt(), anyInt())).thenReturn(productPage);
 
         // WHEN & THEN
         mockMvc.perform(get("/api/products")
+                        .param("page", "0")
+                        .param("size", "10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].name").value("Apple"))
-                .andExpect(jsonPath("$[1].name").value("Banana"))
-                .andExpect(jsonPath("$[0].id").value(1L));
+                .andExpect(jsonPath("$.content.size()").value(2))
+                .andExpect(jsonPath("$.content[0].name").value("Apple"))
+                .andExpect(jsonPath("$.content[1].name").value("Banana"))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test

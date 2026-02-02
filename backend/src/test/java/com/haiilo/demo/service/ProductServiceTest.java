@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -45,26 +46,47 @@ class ProductServiceTest {
     }
 
     @Test
-    void shouldFindAllProductsSuccessfully() {
+    void shouldFindAllProductsByPagingSuccessfully() {
         // GIVEN
-        Product product1 = Product.builder()
-                .name("Apple")
-                .unitPrice(new BigDecimal("0.30"))
-                .build();
+        int page = 0;
+        int size = 10;
+        Product product = Product.builder().name("Apple").build();
+        Page<Product> productPage = new PageImpl<>(List.of(product));
 
-        Product product2 = Product.builder()
-                .name("Banana")
-                .unitPrice(new BigDecimal("0.20"))
-                .build();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
 
-        when(productRepository.findAll()).thenReturn(List.of(product1, product2));
+        when(productRepository.findAll(pageable)).thenReturn(productPage);
 
         // WHEN
-        List<Product> products = productService.findAll();
+        Page<Product> result = productService.findAllByPaging(page, size);
 
         // THEN
-        assertThat(products).hasSize(2);
-        verify(productRepository, times(1)).findAll();
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getName()).isEqualTo("Apple");
+        verify(productRepository).findAll(pageable);
+    }
+
+    @Test
+    void shouldSearchProductsByNameSuccessfully() {
+        // GIVEN
+        String searchTerm = "app";
+        int page = 0;
+        int size = 10;
+        Product product = Product.builder().name("Apple").build();
+        Page<Product> productPage = new PageImpl<>(List.of(product));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+
+        when(productRepository.findByNameContainingIgnoreCase(eq(searchTerm), eq(pageable)))
+                .thenReturn(productPage);
+
+        // WHEN
+        Page<Product> result = productService.searchProductsByName(searchTerm, page, size);
+
+        // THEN
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getName()).isEqualTo("Apple");
+        verify(productRepository).findByNameContainingIgnoreCase(searchTerm, pageable);
     }
 
     @Test

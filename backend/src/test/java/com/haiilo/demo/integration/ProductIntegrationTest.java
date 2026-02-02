@@ -2,12 +2,15 @@ package com.haiilo.demo.integration;
 
 import com.haiilo.demo.dto.ProductRequest;
 import com.haiilo.demo.dto.ProductResponse;
+import com.haiilo.demo.utils.RestPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,22 +42,30 @@ class ProductIntegrationTest {
 
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Long createdId = createResponse.getBody().id();
-        assertThat(createdId).isNotNull();
 
-        // 2. GET BY ALL
-        ResponseEntity<ProductResponse[]> getResponse = restTemplate.getForEntity(
-                baseUrl, ProductResponse[].class);
+        // 2. GET (VERIFY CREATION)
+        ResponseEntity<RestPage<ProductResponse>> getResponse = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {}
+        );
 
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(List.of(getResponse.getBody())).anyMatch(p -> p.id().equals(createdId));
+        List<ProductResponse> products = getResponse.getBody().getContent();
+        assertThat(products).anyMatch(p -> p.id().equals(createdId));
 
         // 3. DELETE
         restTemplate.delete(baseUrl + "/" + createdId);
 
         // 4. VERIFY DELETION
-        ResponseEntity<ProductResponse[]> finalGetResponse = restTemplate.getForEntity(
-                baseUrl, ProductResponse[].class);
+        ResponseEntity<RestPage<ProductResponse>> finalGetResponse = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {}
+        );
 
-        assertThat(List.of(finalGetResponse.getBody())).noneMatch(p -> p.id().equals(createdId));
+        assertThat(finalGetResponse.getBody().getContent()).noneMatch(p -> p.id().equals(createdId));
     }
 }
