@@ -112,6 +112,9 @@ cd backend
 
 # Run with coverage
 ./mvnw test jacoco:report
+
+# Open coverage report
+open target/site/jacoco/index.html
 ```
 
 ### Frontend Tests
