@@ -27,7 +27,13 @@ describe('OfferService', () => {
 
   it('should fetch all offers via GET', () => {
     const dummyOffers: BulkOffer[] = [
-      { id: 1, product: { id: 1, name: 'Apple', unitPrice: 0.5 }, requiredQuantity: 3, offerPrice: 1.0 }
+      {
+        id: 1,
+        product: { id: 1, name: 'Apple', unitPrice: 0.5 },
+        requiredQuantity: 3,
+        offerPrice: 1.0,
+        expiryDate: '2026-02-10T14:30:00'
+      }
     ];
 
     service.getOffers().subscribe(offers => {
@@ -41,8 +47,19 @@ describe('OfferService', () => {
   });
 
   it('should create an offer via POST', () => {
-    const newOfferReq: BulkOfferRequest = { productId: 1, requiredQuantity: 2, offerPrice: 0.8 };
-    const savedOffer: BulkOffer = { id: 2, product: { id: 1, name: 'Apple', unitPrice: 0.5 }, ...newOfferReq };
+    const newOfferReq: BulkOfferRequest = {
+      productId: 1,
+      requiredQuantity: 2,
+      offerPrice: 0.8,
+      expiryDate: '2026-02-10T14:30:00'
+    };
+
+    const savedOffer: BulkOffer = {
+      id: 2,
+      product: { id: 1, name: 'Apple', unitPrice: 0.5 },
+      ...newOfferReq,
+      expiryDate: newOfferReq.expiryDate!
+    };
 
     service.createOffer(newOfferReq).subscribe(offer => {
       expect(offer).toEqual(savedOffer);

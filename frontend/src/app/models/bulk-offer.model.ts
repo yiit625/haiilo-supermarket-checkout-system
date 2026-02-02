@@ -5,10 +5,12 @@ export interface BulkOffer {
   product: Product;
   requiredQuantity: number;
   offerPrice: number;
+  expiryDate: string;
 }
 
 export interface BulkOfferRequest {
   productId: number;
   requiredQuantity: number;
   offerPrice: number;
+  expiryDate?: string | null;
 }
