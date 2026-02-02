@@ -220,6 +220,11 @@ The checkout service implements a smart discount calculation:
 - Cart: 5 apples
 - Calculation: (1 × €0.75) + (2 × €0.30) = €1.35
 
+I chose List<Long> for the checkout request to strictly follow the requirement: "items, in any order". This represents a real-world stream of scanned items (like a barcode scanner) and preserves the sequence of the customer's actions.
+
+### Dynamic Weekly Offers
+- I implemented an expiryDate field to support the "Weekly" nature of offers. By using JPA @PrePersist hooks, the system automatically sets a default 1-week validity if no date is provided. During checkout, the system dynamically filters out expired offers, ensuring that business rules are enforced without manual intervention.
+
 ### Technology Choices
 
 - **Spring Boot**: Industry standard, excellent ecosystem, rapid development
@@ -273,6 +278,7 @@ haiilo-supermarket-checkout-system/
 ### 🔍 Performance & Optimization
 - Indexing Strategy: The system is optimized using B-Tree Indexing on Primary Keys (ID), ensuring $O(\log n)$ performance for direct lookups.
 - Payload Protection: To prevent Denial of Service (DoS) attacks and excessive memory consumption, the CheckoutRequest is strictly limited to 500 items per request using Jakarta Validation (@Size(max = 500)).
+- Used LEFT JOIN FETCH in the repository layer to solve the N+1 problem, ensuring all necessary offer data is retrieved in a single database round-trip.
 
 ### 🏗️ Future-Proof Architecture
 - Scalable Offer Schema: Although currently limited to one active bulk offer per product for business simplicity, the BulkOffer is decoupled in the database. Why? This allows us to easily transition to a One-to-Many relationship in the future (e.g., "Buy 3 for €1" OR "Buy 10 for €3") with minimal schema changes.
