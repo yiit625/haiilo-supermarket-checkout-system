@@ -2,9 +2,7 @@ package com.haiilo.demo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haiilo.demo.dto.CheckoutRequest;
-import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.service.CheckoutService;
-import com.haiilo.demo.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,7 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,13 +24,9 @@ class CheckoutControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @SuppressWarnings("unused") // IDE false positive
     @MockitoBean
+    @SuppressWarnings("unused") // IDE false positive
     private CheckoutService checkoutService;
-
-    @SuppressWarnings("unused") // IDE false positive
-    @MockitoBean
-    private ProductService productService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -44,15 +37,7 @@ class CheckoutControllerTest {
         List<Long> productIds = List.of(1L, 1L, 2L);
         CheckoutRequest request = new CheckoutRequest(productIds);
 
-        Product apple = Product.builder().id(1L).name("Apple").unitPrice(new BigDecimal("0.30")).build();
-        Product banana = Product.builder().id(2L).name("Banana").unitPrice(new BigDecimal("0.50")).build();
-
-        // Mocking ProductService calls
-        when(productService.findById(1L)).thenReturn(apple);
-        when(productService.findById(2L)).thenReturn(banana);
-
-        // Mocking CheckoutService calculation
-        when(checkoutService.calculateTotal(anyList())).thenReturn(new BigDecimal("1.10"));
+        when(checkoutService.calculateTotalFromIds(productIds)).thenReturn(new BigDecimal("1.10"));
 
         // WHEN & THEN
         mockMvc.perform(post("/api/checkout")
