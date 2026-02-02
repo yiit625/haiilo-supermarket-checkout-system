@@ -44,7 +44,7 @@ class CheckoutIntegrationTest {
                 new ProductRequest("Product B", new BigDecimal("30.00")), ProductResponse.class);
 
         // 2. Define Offers
-        BulkOfferRequest bulkOffer = new BulkOfferRequest(productA.id(), 3, new BigDecimal("130.00"));
+        BulkOfferRequest bulkOffer = new BulkOfferRequest(productA.id(), 3, new BigDecimal("130.00"), null);
         restTemplate.postForEntity(offerUrl, bulkOffer, Object.class);
 
         // 3. Checkout with multiple products

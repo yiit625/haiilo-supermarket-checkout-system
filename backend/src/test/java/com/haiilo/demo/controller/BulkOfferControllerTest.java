@@ -40,7 +40,7 @@ public class BulkOfferControllerTest {
     @Test
     void shouldCreateBulkOfferSuccessfully() throws Exception {
         // GIVEN
-        BulkOfferRequest request = new BulkOfferRequest(1L, 5, new BigDecimal("1.20"));
+        BulkOfferRequest request = new BulkOfferRequest(1L, 5, new BigDecimal("1.20"), null);
 
         Product mockProduct = Product.builder().id(1L).name("Apple").build();
         when(productService.findById(1L)).thenReturn(mockProduct);

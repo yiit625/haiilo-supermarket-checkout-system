@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bulk_offers")
@@ -33,4 +34,14 @@ public class BulkOffer extends BaseEntity {
     @NotNull(message = "Offer price is required")
     @DecimalMin(value = "0.01", message = "Offer price must be positive")
     private BigDecimal offerPrice;
+
+    @NotNull(message = "Expiry date is required")
+    private LocalDateTime expiryDate;
+
+    @PrePersist
+    public void ensureExpiryDate() {
+        if (this.expiryDate == null) {
+            this.expiryDate = LocalDateTime.now().plusWeeks(1);
+        }
+    }
 }
