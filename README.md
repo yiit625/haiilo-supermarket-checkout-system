@@ -147,18 +147,6 @@ Once the backend is running, you can access the interactive API documentation:
 #### Checkout
 - `POST /api/checkout` - Calculate total price for a list of products
 
-**Example Checkout Request:**
-```json
-{
-  "productIds": [1, 1, 1, 2]
-}
-```
-
-**Response:**
-```json
-1.25
-```
-
 ## 🏗️ Architecture
 
 ### Backend Architecture
@@ -232,32 +220,6 @@ I chose List<Long> for the checkout request to strictly follow the requirement: 
 - **PostgreSQL**: Robust, ACID-compliant, production-ready
 - **Docker**: Consistent environments, easy deployment
 
-## 📁 Project Structure
-
-```
-haiilo-supermarket-checkout-system/
-├── backend/
-│   ├── src/
-│   │   ├── main/java/com/haiilo/demo/
-│   │   │   ├── controller/      # REST controllers
-│   │   │   ├── service/          # Business logic
-│   │   │   ├── repository/       # Data access
-│   │   │   ├── entity/           # Domain models
-│   │   │   ├── dto/              # Data transfer objects
-│   │   │   ├── config/           # Configuration classes
-│   │   │   └── advice/           # Exception handling
-│   │   └── test/                 # Test classes
-│   └── pom.xml                   # Maven dependencies
-├── frontend/
-│   ├── src/app/
-│   │   ├── components/           # Angular components
-│   │   ├── services/             # Angular services
-│   │   ├── models/               # TypeScript interfaces
-│   │   └── app.component.*       # Root component
-│   └── package.json              # NPM dependencies
-└── docker-compose.yml            # Multi-container setup
-```
-
 ## 🧪 Testing Strategy
 
 ### Backend Tests
@@ -269,12 +231,6 @@ haiilo-supermarket-checkout-system/
 - **Component Tests**: Angular component testing with TestBed
 - **Service Tests**: Service layer testing with HTTP mocking
 
-### Test Coverage
-- Checkout service logic (bulk discount calculations)
-- Product and offer management
-- API endpoints (success and error cases)
-- Frontend components and services
-
 ### 🔍 Performance & Optimization
 - Indexing Strategy: The system is optimized using B-Tree Indexing on Primary Keys (ID), ensuring $O(\log n)$ performance for direct lookups.
 - Payload Protection: To prevent Denial of Service (DoS) attacks and excessive memory consumption, the CheckoutRequest is strictly limited to 500 items per request using Jakarta Validation (@Size(max = 500)).
@@ -284,7 +240,9 @@ haiilo-supermarket-checkout-system/
 - Scalable Offer Schema: Although currently limited to one active bulk offer per product for business simplicity, the BulkOffer is decoupled in the database. Why? This allows us to easily transition to a One-to-Many relationship in the future (e.g., "Buy 3 for €1" OR "Buy 10 for €3") with minimal schema changes.
 
 ## 👤 Author
+- Developed as a take-home assignment demonstrating full-stack development capabilities. YIGIT SAHIN
 
-Developed as a take-home assignment demonstrating full-stack development capabilities. YIGIT SAHIN
-
-**Happy Coding! 🎉**
+### Screenshots of Project
+- ![Frontend Product List](./assets/Full-Page.png)
+- ![Frontend Create_Offer](./assets/CreateOffer.png)
+- ![Frontend_Create_Product](./assets/CreateProduct.png)
