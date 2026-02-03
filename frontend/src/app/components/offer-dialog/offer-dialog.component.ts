@@ -77,6 +77,12 @@ export class OfferDialogComponent implements OnInit {
     });
   }
 
+  displayFn(productId: number): string {
+    if (!productId) return '';
+    const product = this.filteredProducts.find(p => p.id === productId);
+    return product ? product.name : '';
+  }
+
   onProductSelected(event: MatAutocompleteSelectedEvent): void {
     const selectedProduct = event.option.value;
     this.offerForm.get('productId')?.setValue(selectedProduct);

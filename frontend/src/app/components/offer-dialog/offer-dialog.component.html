@@ -10,7 +10,11 @@
              matInput
              [formControl]="productSearchControl"
              [matAutocomplete]="auto">
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onProductSelected($event)">
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="onProductSelected($event)"
+        [displayWith]="displayFn.bind(this)"
+      >
         <mat-option *ngFor="let p of filteredProducts" [value]="p.id">
           {{ p.name }} ({{ p.unitPrice | currency:'EUR' }})
         </mat-option>
