@@ -136,7 +136,7 @@ Once the backend is running, you can access the interactive API documentation:
 
 #### Products
 - `POST /api/products` - Create a new product
-- `GET /api/products` - Get all products
+- `GET /api/products?page=0&size=10&search=apple` - Get paginated products with optional search
 - `DELETE /api/products/{id}` - Delete a product
 
 #### Bulk Offers
@@ -145,7 +145,7 @@ Once the backend is running, you can access the interactive API documentation:
 - `DELETE /api/offers/{id}` - Delete a bulk offer
 
 #### Checkout
-- `POST /api/checkout` - Calculate total price for a list of products
+- `POST /api/checkout` - Return Checkout Response with total price for given product IDs
 
 ## 🏗️ Architecture
 
