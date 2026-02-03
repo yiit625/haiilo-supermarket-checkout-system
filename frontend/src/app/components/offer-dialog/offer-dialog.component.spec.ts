@@ -99,4 +99,19 @@ describe('OfferDialogComponent', () => {
     const noOfferDiv = fixture.debugElement.query(By.css('.offers-section div[style*="color: #999"]'));
     expect(noOfferDiv.nativeElement.textContent).toContain('There is no active offer.');
   });
+
+  it('should delete offer and refresh the list when delete icon is clicked', () => {
+    const offerIdToDelete = 101;
+    offerServiceMock.deleteOffer = jasmine.createSpy('deleteOffer').and.returnValue(of({}));
+
+    offerServiceMock.getOffers.and.returnValue(of([]));
+
+    // 2. WHEN
+    component.onDeleteOffer(offerIdToDelete);
+
+    // 3. THEN
+    expect(offerServiceMock.deleteOffer).toHaveBeenCalledWith(offerIdToDelete);
+    expect(component.existingOffers.length).toBe(0);
+    expect(notificationServiceMock.showSuccess).toHaveBeenCalled();
+  });
 });
