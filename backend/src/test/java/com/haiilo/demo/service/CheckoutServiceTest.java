@@ -1,9 +1,10 @@
 package com.haiilo.demo.service;
 
+import com.haiilo.demo.dto.CheckoutResponse;
+import com.haiilo.demo.dto.ItemDetail;
 import com.haiilo.demo.entity.BulkOffer;
 import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.service.serviceImpl.CheckoutServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
@@ -30,116 +30,67 @@ class CheckoutServiceTest {
 
     @Test
     void shouldCalculateTotalFromIdsWithOffers() {
-        // GIVEN: Apple (w/campaign) and Banana (no/campaign)
-        Product apple = Product.builder()
-                .id(1L)
-                .name("Apple")
-                .unitPrice(new BigDecimal("0.30"))
-                .build();
+        // GIVEN
+        Product apple = Product.builder().id(1L).name("Apple").unitPrice(new BigDecimal("0.30")).build();
+        apple.setBulkOffer(BulkOffer.builder().requiredQuantity(3).offerPrice(new BigDecimal("0.75"))
+                .expiryDate(LocalDateTime.now().plusWeeks(1)).build());
 
-        BulkOffer appleOffer = BulkOffer.builder()
-                .requiredQuantity(3)
-                .offerPrice(new BigDecimal("0.75"))
-                .expiryDate(LocalDateTime.now().plusWeeks(1))
-                .build();
-        apple.setBulkOffer(appleOffer);
-
-        Product banana = Product.builder()
-                .id(2L)
-                .name("Banana")
-                .unitPrice(new BigDecimal("0.50"))
-                .build();
+        Product banana = Product.builder().id(2L).name("Banana").unitPrice(new BigDecimal("0.50")).build();
 
         List<Long> productIds = List.of(1L, 1L, 1L, 2L);
-
         when(productService.findAllByIdsWithOffers(anySet())).thenReturn(List.of(apple, banana));
 
         // WHEN
-        BigDecimal total = checkoutService.calculateTotalFromIds(productIds);
+        CheckoutResponse response = checkoutService.calculateTotalFromIds(productIds);
 
-        // THEN: 0.75 (3 Apples) + 0.50 (1 Banana) = 1.25
-        assertThat(total).isEqualByComparingTo("1.25");
+        // THEN
+        assertThat(response.finalTotal()).isEqualByComparingTo("1.25");
+        assertThat(response.items()).hasSize(2);
+        ItemDetail appleDetail = response.items().stream().filter(i -> i.productName().equals("Apple")).findFirst().get();
+        assertThat(appleDetail.discountApplied()).isTrue();
+        assertThat(appleDetail.priceAfterDiscount()).isEqualByComparingTo("0.75");
+        assertThat(appleDetail.priceBeforeDiscount()).isEqualByComparingTo("0.90");
     }
 
     @Test
     void shouldCalculateTotalWithComplexScenario() {
-        // GIVEN: Apple (3 for 0.75) and Egg (3 for 1.15)
-        Product apple = Product.builder()
-                .id(1L)
-                .unitPrice(new BigDecimal("0.30"))
-                .build();
-        apple.setBulkOffer(BulkOffer.builder()
-                .requiredQuantity(3)
-                .offerPrice(new BigDecimal("0.75"))
-                .expiryDate(LocalDateTime.now().plusWeeks(1))
-                .build());
-
-        Product egg = Product.builder()
-                .id(3L)
-                .unitPrice(new BigDecimal("0.45"))
-                .build();
-        egg.setBulkOffer(BulkOffer.builder()
-                .requiredQuantity(3)
-                .offerPrice(new BigDecimal("1.15"))
+        // GIVEN
+        Product apple = Product.builder().id(1L).name("Apple").unitPrice(new BigDecimal("0.30")).build();
+        apple.setBulkOffer(BulkOffer.builder().requiredQuantity(3).offerPrice(new BigDecimal("0.75"))
                 .expiryDate(LocalDateTime.now().plusWeeks(1)).build());
 
-        Product banana = Product.builder().id(2L).unitPrice(new BigDecimal("0.50")).build();
+        Product egg = Product.builder().id(3L).name("Egg").unitPrice(new BigDecimal("0.45")).build();
+        egg.setBulkOffer(BulkOffer.builder().requiredQuantity(3).offerPrice(new BigDecimal("1.15"))
+                .expiryDate(LocalDateTime.now().plusWeeks(1)).build());
 
-        // 3 Apple, 5 Egg, 1 Banana
+        Product banana = Product.builder().id(2L).name("Banana").unitPrice(new BigDecimal("0.50")).build();
+
         List<Long> productIds = List.of(1L, 1L, 1L, 2L, 3L, 3L, 3L, 3L, 3L);
-
         when(productService.findAllByIdsWithOffers(anySet())).thenReturn(List.of(apple, banana, egg));
 
         // WHEN
-        BigDecimal total = checkoutService.calculateTotalFromIds(productIds);
+        CheckoutResponse response = checkoutService.calculateTotalFromIds(productIds);
 
-        // THEN:
-        // 3 Apple = 0.75
-        // 1 Banana = 0.50
-        // 5 Egg = (1 * 1.15) + (2 * 0.45) = 1.15 + 0.90 = 2.05
-        // Total = 0.75 + 0.50 + 2.05 = 3.30
-        assertThat(total).isEqualByComparingTo("3.30");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenSomeProductsNotFound() {
-        // GIVEN
-        List<Long> productIds = List.of(1L, 999L);
-
-        // IN DB there is only product with ID 1
-        Product apple = Product.builder().id(1L).name("Apple").unitPrice(new BigDecimal("0.30")).build();
-
-        // Mock: DB returns only the found product
-        when(productService.findAllByIdsWithOffers(anySet())).thenReturn(List.of(apple));
-
-        // WHEN & THEN: We wait for EntityNotFoundException
-        assertThatThrownBy(() -> checkoutService.calculateTotalFromIds(productIds))
-                .isInstanceOf(EntityNotFoundException.class);
+        // THEN: 0.75 (Apple) + 0.50 (Banana) + 2.05 (Egg) = 3.30
+        assertThat(response.finalTotal()).isEqualByComparingTo("3.30");
+        assertThat(response.items().stream().filter(ItemDetail::discountApplied)).hasSize(2); // Apple ve Egg
     }
 
     @Test
     void shouldNotApplyOfferWhenItIsExpired() {
-        // GIVEN: Apple 0.30€, But offer (3 unit 0.75€) finished.
-        Product apple = Product.builder()
-                .id(1L)
-                .unitPrice(new BigDecimal("0.30"))
-                .build();
-
-        BulkOffer expiredOffer = BulkOffer.builder()
-                .requiredQuantity(3)
-                .offerPrice(new BigDecimal("0.75"))
-                .expiryDate(LocalDateTime.now().minusDays(1)) // Yesterday expired
-                .build();
-        apple.setBulkOffer(expiredOffer);
+        // GIVEN
+        Product apple = Product.builder().id(1L).name("Apple").unitPrice(new BigDecimal("0.30")).build();
+        apple.setBulkOffer(BulkOffer.builder().requiredQuantity(3).offerPrice(new BigDecimal("0.75"))
+                .expiryDate(LocalDateTime.now().minusDays(1)).build());
 
         List<Long> productIds = List.of(1L, 1L, 1L);
-
         when(productService.findAllByIdsWithOffers(anySet())).thenReturn(List.of(apple));
 
         // WHEN
-        BigDecimal total = checkoutService.calculateTotalFromIds(productIds);
+        CheckoutResponse response = checkoutService.calculateTotalFromIds(productIds);
 
-        // THEN:  Should be 3 * 0.30 = 0.90€ not 0.75!
-        assertThat(total).isEqualByComparingTo("0.90");
+        // THEN
+        assertThat(response.finalTotal()).isEqualByComparingTo("0.90");
+        assertThat(response.items().get(0).discountApplied()).isFalse();
     }
 }

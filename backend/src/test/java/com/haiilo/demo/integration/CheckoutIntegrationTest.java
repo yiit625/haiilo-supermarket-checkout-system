@@ -1,9 +1,6 @@
 package com.haiilo.demo.integration;
 
-import com.haiilo.demo.dto.BulkOfferRequest;
-import com.haiilo.demo.dto.CheckoutRequest;
-import com.haiilo.demo.dto.ProductRequest;
-import com.haiilo.demo.dto.ProductResponse;
+import com.haiilo.demo.dto.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +49,13 @@ class CheckoutIntegrationTest {
         CheckoutRequest checkoutRequest = new CheckoutRequest(ids);
 
         // 4. Rest API
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                checkoutUrl, checkoutRequest, String.class);
+        ResponseEntity<CheckoutResponse> response = restTemplate.postForEntity(
+                checkoutUrl, checkoutRequest, CheckoutResponse.class);
 
         // 5. Assertions
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        BigDecimal actualTotal = new BigDecimal(response.getBody());
+        assertThat(response.getBody()).isNotNull();
+        BigDecimal actualTotal = response.getBody().finalTotal();
         assertThat(actualTotal).isEqualByComparingTo(new BigDecimal("160.00"));
     }
 }
