@@ -87,6 +87,18 @@ export class OfferDialogComponent implements OnInit {
     this.offerService.getOffers().subscribe(data => this.existingOffers = data);
   }
 
+  onDeleteOffer(id: number): void {
+    this.offerService.deleteOffer(id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Offer deleted successfully!');
+        this.loadOffers();
+      },
+      error: (err) => {
+        this.notificationService.showError(`Error:${err}`);
+      }
+    })
+  }
+
   onSubmit(): void {
     if (this.offerForm.valid) {
       this.offerService.createOffer(this.offerForm.value).subscribe({
