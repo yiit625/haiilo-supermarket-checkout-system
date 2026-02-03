@@ -77,4 +77,24 @@ describe('ProductListComponent', () => {
     expect(compiled.querySelector('.no-products')).toBeTruthy();
     expect(compiled.querySelectorAll('mat-card').length).toBe(0);
   });
+
+  it('should delete product when "Delete Product" clicked', () => {
+    productServiceMock.deleteProduct = jasmine.createSpy('deleteProduct').and.returnValue(of(null));
+
+    productServiceMock.getProducts.and.returnValue(of({
+      content: [{ id: 2, name: 'Banana', unitPrice: 0.3 }],
+      totalElements: 1
+    }));
+
+    const productIdToDelete = 1;
+
+    // 2. WHEN
+    component.deleteProduct(productIdToDelete);
+
+    // 3. THEN
+    expect(productServiceMock.deleteProduct).toHaveBeenCalledWith(productIdToDelete);
+    expect(component.products.length).toBe(1);
+    expect(component.totalElements).toBe(1);
+    expect(component.products[0].name).toBe('Banana');
+  })
 });
