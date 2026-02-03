@@ -10,6 +10,7 @@ import {OfferDialogComponent} from '../offer-dialog/offer-dialog.component';
 import {MatIconModule} from '@angular/material/icon';
 import {ProductDialogComponent} from '../product-dialog/product-dialog.component';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {NotificationService} from '../../services/notification.service';
 
 @Component({
   selector: 'app-product-list',
@@ -28,7 +29,8 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private checkoutService: CheckoutService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -55,6 +57,18 @@ export class ProductListComponent implements OnInit {
     this.checkoutService.addToCart(product);
   }
 
+  deleteProduct(id: number): void {
+    this.productService.deleteProduct(id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Product deleted successfully!');
+        this.listProducts();
+      },
+      error: (err) => {
+        this.notificationService.showError(`Error:${err}`);
+      }
+    })
+  }
+
   openOfferDialog(): void {
     const dialogRef = this.dialog.open(OfferDialogComponent, {
       width: '400px'
@@ -62,7 +76,7 @@ export class ProductListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Give a successfully message in here!');
+        this.listProducts();
       }
     });
   }
