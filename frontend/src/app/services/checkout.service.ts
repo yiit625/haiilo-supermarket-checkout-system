@@ -23,6 +23,18 @@ export class CheckoutService {
     existingItem ? existingItem.quantity += 1 : this.cartItems.push({ product, quantity: 1 });
   }
 
+  removeFromCart(product: Product): void {
+    const existingItem = this.cartItems.find(item => item.product.id === product.id);
+
+    if (existingItem) {
+      if (existingItem.quantity > 1) {
+        existingItem.quantity -= 1;
+      } else {
+        this.cartItems = this.cartItems.filter(item => item.product.id !== product.id);
+      }
+    }
+  }
+
   processCheckout(): Observable<any> {
     const productIds = this.cartItems.flatMap(item =>
       Array(item.quantity).fill(item.product.id)
