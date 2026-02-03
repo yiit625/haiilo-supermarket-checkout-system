@@ -1,8 +1,9 @@
 package com.haiilo.demo.service;
 
-import java.math.BigDecimal;
+import com.haiilo.demo.dto.CheckoutResponse;
+
 import java.util.List;
 
 public interface CheckoutService {
-    BigDecimal calculateTotalFromIds(List<Long> productIds);
+    CheckoutResponse calculateTotalFromIds(List<Long> productIds);
 }

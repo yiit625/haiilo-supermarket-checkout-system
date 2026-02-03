@@ -1,16 +1,20 @@
 package com.haiilo.demo.service.serviceImpl;
 
+import com.haiilo.demo.dto.CheckoutResponse;
+import com.haiilo.demo.dto.ItemDetail;
 import com.haiilo.demo.entity.BulkOffer;
 import com.haiilo.demo.entity.Product;
 import com.haiilo.demo.service.CheckoutService;
 import com.haiilo.demo.service.ProductService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,15 +24,16 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final ProductService productService;
 
     /**
-     * Calculates the total price for a list of product IDs, applying any relevant bulk discounts.
+     * Calculates the total price for a list of product IDs, applying any relevant discounts.
      *
      * @param productIds List of product IDs to calculate the total for.
-     * @return Total price as BigDecimal.
-     * @throws EntityNotFoundException if any product ID does not correspond to an existing product.
+     * @return CheckoutResponse containing item details and final total price.
      */
     @Override
-    public BigDecimal calculateTotalFromIds(List<Long> productIds) {
-        if (productIds == null || productIds.isEmpty()) return BigDecimal.ZERO;
+    public CheckoutResponse calculateTotalFromIds(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return new CheckoutResponse(Collections.emptyList(), BigDecimal.ZERO);
+        }
 
         Map<Long, Long> productCounts = productIds.stream()
                 .filter(Objects::nonNull)
@@ -36,13 +41,35 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         List<Product> products = productService.findAllByIdsWithOffers(productCounts.keySet());
 
-        if (products.size() != productCounts.size()) {
-            throw new EntityNotFoundException("Some products were not found");
-        }
+        List<ItemDetail> details = products.stream()
+                .map(p -> createItemDetail(p, productCounts.get(p.getId()).intValue()))
+                .collect(Collectors.toList());
 
-        return products.stream()
-                .map(p -> calculateItemTotal(p, productCounts.get(p.getId()).intValue()))
+        BigDecimal finalTotal = details.stream()
+                .map(ItemDetail::priceAfterDiscount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new CheckoutResponse(details, finalTotal);
+    }
+
+    /**
+     * Creates an ItemDetail object for a given product and quantity.
+     *
+     * @param product  The product to create the detail for.
+     * @param quantity The quantity of the product.
+     * @return ItemDetail containing pricing information.
+     */
+    private ItemDetail createItemDetail(Product product, int quantity) {
+        BigDecimal priceBefore = calculateRegularPrice(product, quantity);
+        BigDecimal priceAfter = calculateItemTotal(product, quantity);
+
+        return new ItemDetail(
+                product.getName(),
+                quantity,
+                priceBefore,
+                priceAfter,
+                priceAfter.compareTo(priceBefore) < 0
+        );
     }
 
     /**
