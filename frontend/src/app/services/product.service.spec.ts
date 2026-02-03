@@ -83,4 +83,21 @@ describe('ProductService', () => {
     expect(req.request.body).toEqual(newProductReq);
     req.flush(savedProduct);
   });
+
+  it('should delete a product via DELETE', () => {
+    // 1. GIVEN
+    const productId = 123;
+
+    // 2. WHEN
+    service.deleteProduct(productId).subscribe(response => {
+      expect(response).toBeNull();
+    });
+
+    // 3. THEN
+    const req = httpMock.expectOne(`${apiUrl}/${productId}`);
+
+    expect(req.request.method).toBe('DELETE');
+
+    req.flush(null);
+  });
 });
