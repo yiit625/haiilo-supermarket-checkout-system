@@ -70,4 +70,20 @@ describe('OfferService', () => {
     expect(req.request.body).toEqual(newOfferReq);
     req.flush(savedOffer);
   });
+
+  it('should delete an offer via DELETE', () => {
+    // GIVEN
+    const offerId: number = 1;
+
+    // WHEN
+    service.deleteOffer(offerId).subscribe(offer => {
+      expect(offer).toBeNull();
+    });
+
+    // THEN
+    const req = httpMock.expectOne(`${apiUrl}/${offerId}`);
+
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  })
 });
