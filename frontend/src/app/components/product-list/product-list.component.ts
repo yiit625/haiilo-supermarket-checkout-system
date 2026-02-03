@@ -53,8 +53,17 @@ export class ProductListComponent implements OnInit {
     this.listProducts();
   }
 
+  getQuantity(product: Product): number {
+    const item = this.checkoutService.getCartItems().find(i => i.product.id === product.id);
+    return item ? item.quantity : 0;
+  }
+
   addToCart(product: Product): void {
     this.checkoutService.addToCart(product);
+  }
+
+  removeFromCart(product: Product): void {
+    this.checkoutService.removeFromCart(product);
   }
 
   deleteProduct(id: number): void {
@@ -62,6 +71,7 @@ export class ProductListComponent implements OnInit {
       next: () => {
         this.notificationService.showSuccess('Product deleted successfully!');
         this.listProducts();
+        this.checkoutService.clearCart();
       },
       error: (err) => {
         this.notificationService.showError(`Error:${err}`);

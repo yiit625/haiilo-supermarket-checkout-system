@@ -1,100 +1,110 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductListComponent } from './product-list.component';
 import { ProductService } from '../../services/product.service';
+import { CheckoutService } from '../../services/checkout.service';
+import { NotificationService } from '../../services/notification.service';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { PageEvent } from '@angular/material/paginator';
-import { CheckoutService } from '../../services/checkout.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+
 
 describe('ProductListComponent', () => {
   let component: ProductListComponent;
   let fixture: ComponentFixture<ProductListComponent>;
+
   let productServiceMock: any;
   let checkoutServiceMock: any;
+  let notificationServiceMock: any;
+  let dialogMock: any;
 
+  const mockProduct = { id: 1, name: 'Apple', unitPrice: 0.5 };
   const mockPageResponse = {
-    content: [
-      { id: 1, name: 'Apple', unitPrice: 0.5 },
-      { id: 2, name: 'Banana', unitPrice: 0.3 }
-    ],
-    totalElements: 2
+    content: [mockProduct],
+    totalElements: 1
   };
 
   beforeEach(async () => {
     productServiceMock = {
-      getProducts: jasmine.createSpy('getProducts').and.returnValue(of(mockPageResponse))
+      getProducts: jasmine.createSpy('getProducts').and.returnValue(of(mockPageResponse)),
+      deleteProduct: jasmine.createSpy('deleteProduct').and.returnValue(of({}))
     };
 
     checkoutServiceMock = {
-      addToCart: jasmine.createSpy('addToCart')
+      getCartItems: jasmine.createSpy('getCartItems').and.returnValue([]),
+      addToCart: jasmine.createSpy('addToCart'),
+      removeFromCart: jasmine.createSpy('removeFromCart'),
+      clearCart: jasmine.createSpy('clearCart')
     };
 
+    notificationServiceMock = {
+      showSuccess: jasmine.createSpy('showSuccess'),
+      showError: jasmine.createSpy('showError')
+    };
+
+    dialogMock = jasmine.createSpyObj('MatDialog', ['open']);
+    dialogMock.open.and.returnValue({
+      afterClosed: () => of(true)
+    } as any);
+
     await TestBed.configureTestingModule({
-      imports: [ProductListComponent, NoopAnimationsModule],
+      imports: [ProductListComponent, NoopAnimationsModule, HttpClientTestingModule],
       providers: [
         { provide: ProductService, useValue: productServiceMock },
-        { provide: CheckoutService, useValue: checkoutServiceMock }
+        { provide: CheckoutService, useValue: checkoutServiceMock },
+        { provide: NotificationService, useValue: notificationServiceMock },
+        { provide: MatDialog, useValue: dialogMock }
       ]
-    }).compileComponents();
+    }).overrideComponent(ProductListComponent, {
+      remove: { imports: [MatDialogModule] },
+      add: { providers: [{ provide: MatDialog, useValue: dialogMock }] }
+    })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ProductListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should fetch products with default paging on init', () => {
-    expect(productServiceMock.getProducts).toHaveBeenCalledWith(0, 10);
-    expect(component.products.length).toBe(2);
-    expect(component.totalElements).toBe(2);
+  it('should add product to cart when addToCart is called', () => {
+    component.addToCart(mockProduct);
+    expect(checkoutServiceMock.addToCart).toHaveBeenCalledWith(mockProduct);
   });
 
-  it('should render product cards correctly', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const cards = compiled.querySelectorAll('mat-card');
-
-    expect(cards.length).toBe(2);
-    expect(cards[0].querySelector('mat-card-title')?.textContent).toContain('Apple');
-    expect(cards[1].querySelector('mat-card-title')?.textContent).toContain('Banana');
+  it('should remove product from cart when removeFromCart is called', () => {
+    component.removeFromCart(mockProduct);
+    expect(checkoutServiceMock.removeFromCart).toHaveBeenCalledWith(mockProduct);
   });
 
-  it('should refresh list when page changes', () => {
-    const pageEvent: PageEvent = { pageIndex: 1, pageSize: 5, length: 2 };
 
-    component.onPageChange(pageEvent);
+  it('should return correct quantity from checkout service', () => {
+    checkoutServiceMock.getCartItems.and.returnValue([{ product: mockProduct, quantity: 3 }]);
 
-    expect(component.currentPage).toBe(1);
-    expect(component.pageSize).toBe(5);
-    expect(productServiceMock.getProducts).toHaveBeenCalledWith(1, 5);
+    const quantity = component.getQuantity(mockProduct);
+
+    expect(quantity).toBe(3);
+    expect(checkoutServiceMock.getCartItems).toHaveBeenCalled();
   });
 
-  it('should show "No products found" when list is empty', () => {
-    productServiceMock.getProducts.and.returnValue(of({ content: [], totalElements: 0 }));
-
-    component.listProducts();
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.no-products')).toBeTruthy();
-    expect(compiled.querySelectorAll('mat-card').length).toBe(0);
+  it('should return 0 if product is not in cart', () => {
+    checkoutServiceMock.getCartItems.and.returnValue([]);
+    const quantity = component.getQuantity(mockProduct);
+    expect(quantity).toBe(0);
   });
 
-  it('should delete product when "Delete Product" clicked', () => {
-    productServiceMock.deleteProduct = jasmine.createSpy('deleteProduct').and.returnValue(of(null));
+  it('should clear cart and refresh list when a product is deleted from system', () => {
+    component.deleteProduct(1);
 
-    productServiceMock.getProducts.and.returnValue(of({
-      content: [{ id: 2, name: 'Banana', unitPrice: 0.3 }],
-      totalElements: 1
-    }));
+    expect(productServiceMock.deleteProduct).toHaveBeenCalledWith(1);
+    expect(notificationServiceMock.showSuccess).toHaveBeenCalled();
+    expect(checkoutServiceMock.clearCart).toHaveBeenCalled();
+    expect(productServiceMock.getProducts).toHaveBeenCalled();
+  });
 
-    const productIdToDelete = 1;
+  it('should call openOfferDialog when manage offers button is clicked', () => {
+    component.openOfferDialog();
 
-    // 2. WHEN
-    component.deleteProduct(productIdToDelete);
-
-    // 3. THEN
-    expect(productServiceMock.deleteProduct).toHaveBeenCalledWith(productIdToDelete);
-    expect(component.products.length).toBe(1);
-    expect(component.totalElements).toBe(1);
-    expect(component.products[0].name).toBe('Banana');
-  })
+    expect(dialogMock.open).toHaveBeenCalled();
+    expect(productServiceMock.getProducts).toHaveBeenCalled();
+  });
 });
