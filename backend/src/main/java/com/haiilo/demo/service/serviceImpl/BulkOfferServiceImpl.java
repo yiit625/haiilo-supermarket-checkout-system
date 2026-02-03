@@ -6,6 +6,7 @@ import com.haiilo.demo.service.BulkOfferService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +34,16 @@ public class BulkOfferServiceImpl implements BulkOfferService {
     }
 
     @Override
+    @Transactional // Atomic
     public void deleteById(Long id) {
-        if (!bulkOfferRepository.existsById(id)) {
-            throw new EntityNotFoundException("Product not found with id: " + id);
+        BulkOffer offer = bulkOfferRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Offer not found with id: " + id));
+
+        if (offer.getProduct() != null) {
+            offer.getProduct().setBulkOffer(null);
         }
-        bulkOfferRepository.deleteById(id);
+
+        bulkOfferRepository.delete(offer);
     }
 
     private void validateOfferUniqueness(Long productId, String productName) {

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -115,14 +116,21 @@ class BulkOfferServiceTest {
 
     @Test
     void shouldDeleteOfferById() {
-        Long productId = 1L;
+        Long offerId = 1L;
+        Product mockProduct = new Product();
+        BulkOffer mockOffer = BulkOffer.builder()
+                .id(offerId)
+                .product(mockProduct)
+                .build();
 
+        when(bulkOfferRepository.findById(offerId)).thenReturn(Optional.of(mockOffer));
 
-        when(bulkOfferRepository.existsById(productId)).thenReturn(true);
+        // 2. WHEN
+        bulkOfferService.deleteById(offerId);
 
-        bulkOfferService.deleteById(productId);
-
-        verify(bulkOfferRepository, times(1)).existsById(productId);
-        verify(bulkOfferRepository, times(1)).deleteById(productId);
+        // 3. THEN
+        verify(bulkOfferRepository, times(1)).findById(offerId);
+        assertNull(mockProduct.getBulkOffer());
+        verify(bulkOfferRepository, times(1)).delete(mockOffer);
     }
 }
