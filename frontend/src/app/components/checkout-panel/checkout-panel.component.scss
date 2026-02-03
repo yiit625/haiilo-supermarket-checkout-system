@@ -21,4 +21,26 @@
   }
 
   .error { color: red; margin-top: 10px; font-size: 0.9rem; }
+
+  .price-container {
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    .old-price {
+      text-decoration: line-through;
+      color: #9e9e9e;
+      font-size: 0.9em;
+    }
+
+    .new-price {
+      color: #2e7d32;
+      font-weight: bold;
+      font-size: 1em;
+      background: #e8f5e9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  }
 }

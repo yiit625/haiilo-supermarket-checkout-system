@@ -4,9 +4,18 @@
   <mat-list>
     <mat-list-item *ngFor="let item of checkoutService.getCartItems()">
       <span matListItemTitle>{{ item.product.name }}</span>
+
       <span matListItemLine>
-        {{ item.quantity }} x {{ item.product.unitPrice | currency:'EUR' }}
+    {{ item.quantity }} x {{ item.product.unitPrice | currency:'EUR' }}
+
+        <ng-container *ngIf="getDiscountInfo(item.product.name) as detail">
+      <span *ngIf="detail.discountApplied" class="price-container">
+        <span class="old-price">{{ detail.priceBeforeDiscount | currency:'EUR' }}</span>
+        <span class="new-price">{{ detail.priceAfterDiscount | currency:'EUR' }}</span>
+        <mat-icon color="accent" style="font-size: 16px; vertical-align: middle;">auto_fix_high</mat-icon>
       </span>
+    </ng-container>
+  </span>
     </mat-list-item>
 
     <div *ngIf="checkoutService.getCartItems().length === 0" class="empty-msg">
