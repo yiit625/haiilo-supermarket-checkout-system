@@ -35,6 +35,18 @@ describe('CheckoutService', () => {
     expect(cartItems[0].quantity).toBe(2);
   })
 
+  it('should remove cart', () => {
+    // Arrange
+    const product: Product = { id: 101, name: 'Apple', unitPrice: 0.5 };
+
+    // Act
+    service.addToCart(product);
+    service.removeFromCart(product);
+
+    // Assert
+    expect(service.getCartItems().length).toBe(0);
+  })
+
   it('should transform cart items into a flat list of IDs for the backend', () => {
     // Arrange
     const productA: Product = { id: 101, name: 'Apple', unitPrice: 0.5 };
