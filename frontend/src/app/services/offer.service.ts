@@ -16,4 +16,8 @@ export class OfferService {
   createOffer(request: BulkOfferRequest): Observable<BulkOffer> {
     return this.http.post<BulkOffer>(this.apiUrl, request);
   }
+
+  deleteOffer(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }
